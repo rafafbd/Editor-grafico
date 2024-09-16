@@ -2,8 +2,9 @@ import java.awt.*;
 
 public class Ponto {
 
-    private int x, y;
-    private Color cor;
+    protected int x, y;
+    protected Color cor;
+    // protected faz com que seja acessível às heranças mas não a outra classes não relacionadas
 
     public Ponto(int cx, int cy, Color qualCor){
         x = cx;
@@ -35,8 +36,8 @@ public class Ponto {
         return cor;
     }
 
-    public void desenha(Color cor, Graphics g){
+    public void desenhar(Graphics g){
         g.setColor(cor);
-        g.drawLine(getX(), getY(), getX(), getY());
+        g.drawLine(x, y, x, y);
     }
 }
