@@ -5,7 +5,7 @@ import javax.swing.*;
 public class Editor extends JFrame{ // Formulário GUI
 
     private JButton btnPonto, btnLinha, btnCirculo, btnElipse, btnCor, btnAbrir,
-            btnSalvar,btnApagar, btnSair;
+            btnSalvar, btnApagar, btnSair;
     private JPanel pnlBotoes;
     static private JInternalFrame frame;
 
