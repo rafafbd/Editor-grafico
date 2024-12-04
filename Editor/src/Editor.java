@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import javax.swing.*;
 
 public class Editor extends JFrame{ // Formulário GUI
@@ -50,7 +51,7 @@ public class Editor extends JFrame{ // Formulário GUI
         frame = new JInternalFrame("Nenhum arquivo aberto", true, true, true, true);
         panDesenho.add(frame);
 
-        setSize(700,500);
+        setSize(900,700);
         show();
 
         frame.setSize(this.getWidth() / 2,this.getHeight() / 2);
@@ -77,8 +78,55 @@ public class Editor extends JFrame{ // Formulário GUI
         public void actionPerformed(ActionEvent e) {
             JFileChooser arqEscolhido = new JFileChooser();
             arqEscolhido.setFileSelectionMode(JFileChooser.FILES_ONLY);
-
             int result = arqEscolhido.showOpenDialog(Editor.this);
+            File arquivo = null;
+            if (result == JFileChooser.APPROVE_OPTION) {
+                arquivo = arqEscolhido.getSelectedFile();
+                System.out.println("Processando "+arquivo.getName());
+            }
+            try {
+                BufferedReader arqFiguras = new BufferedReader(
+                        new FileReader(arquivo.getName()));
+                try {
+                    qtasFiguras = 0;
+                    String linha = arqFiguras.readLine();
+                    while (linha != null)
+                    {
+                        String tipo = linha.substring(0,5).trim();
+                        int xBase = Integer.parseInt(linha.substring(5,10).trim());
+                        int yBase = Integer.parseInt(linha.substring(10,15).trim());
+                        int corR  = Integer.parseInt(linha.substring(15,20).trim());
+                        int corG  = Integer.parseInt(linha.substring(20,25).trim());
+                        int corB  = Integer.parseInt(linha.substring(25,30).trim());
+                        Color cor = new Color(corR, corG, corB);
+                        switch (tipo.charAt(0)) // verificar qual tipo de figura
+                        {
+                            case 'p': figuras[qtasFiguras++] = new Ponto(xBase, yBase, cor); break;
+                            case 'l':
+                                int xFinal =Integer.parseInt(linha.substring(30,35).trim());
+                                int yFinal =Integer.parseInt(linha.substring(35,40).trim());
+                                figuras[qtasFiguras++] = new Linha(xBase, yBase, xFinal, yFinal, cor); break;
+                            case 'c':
+                                int raio =Integer.parseInt(linha.substring(30,35).trim());
+                                figuras[qtasFiguras++] = new Circulo(xBase, yBase, raio, cor); break;
+                            case 'o':
+                                int raioA =Integer.parseInt(linha.substring(30,35).trim());
+                                int raioB =Integer.parseInt(linha.substring(35,40).trim());
+                                figuras[qtasFiguras++] = new Oval(xBase, yBase, raioA, raioB, cor);
+                        }
+                        linha = arqFiguras.readLine();
+                    }
+                    arqFiguras.close();
+                    frame.setTitle(arquivo.getName());
+                    paintComponents(pnlDesenho.getGraphics());
+                }
+                catch (IOException ioe){
+                    System.out.println("Erro de leitura no arquivo");
+                }
+            }
+            catch (FileNotFoundException er) {
+                System.out.println("Arquivo não pôde ser aberto");
+            }
         }
     }
 

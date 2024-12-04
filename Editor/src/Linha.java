@@ -1,18 +1,11 @@
 import java.awt.*;
+public class Linha  extends Ponto {
 
-public class Circulo extends Ponto {
-    private int raio;
+    private Ponto pontoFinal;
 
-    public Circulo(int xCentro, int yCentro, int r, Color cor){
-        super(xCentro, yCentro, cor);
-        raio = r;
-    }
-
-    public int getRaio(){
-        return raio;
-    }
-    public void setRaio(int r){
-        raio = r;
+    public Linha(int x1, int y1, int x2, int y2, Color cor) {
+        super(x1,y1, cor);
+        pontoFinal = new Ponto(x2,y2, cor);
     }
 
     public String transformaString(String valor, int quantasPosicoes) {
@@ -29,11 +22,12 @@ public class Circulo extends Ponto {
                 transformaString(Integer.toString(getCor().getRed()),5)+
                 transformaString(Integer.toString(getCor().getGreen()),5)+
                 transformaString(Integer.toString(getCor().getBlue()),5)+
-                transformaString(Integer.toString(raio),5);
+                transformaString(Integer.toString(pontoFinal.x),5)+
+                transformaString(Integer.toString(pontoFinal.y),5);
     }
 
     public void desenhar(Graphics g){
         g.setColor(cor);
-        g.drawOval(x - raio, y - raio, raio, raio);
+        g.drawLine(super.x, super.y, pontoFinal.x, pontoFinal.y);
     }
 }
