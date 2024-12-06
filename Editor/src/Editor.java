@@ -32,6 +32,11 @@ public class Editor extends JFrame{ // Formulário GUI
         FlowLayout flwBotoes = new FlowLayout();
         pnlBotoes.setLayout(flwBotoes);
         btnAbrir.addActionListener(new FazAbertura());
+        btnSalvar.addActionListener(new FazSalvamento());
+        btnPonto.addActionListener(new FazPonto());
+        btnLinha.addActionListener(new FazLinha());
+        btnCirculo.addActionListener(new FazCirculo());
+        btnElipse.addActionListener(new FazOval());
         pnlBotoes.add(btnAbrir);
         pnlBotoes.add(btnSalvar);
         pnlBotoes.add(btnPonto);
@@ -129,6 +134,153 @@ public class Editor extends JFrame{ // Formulário GUI
             }
         }
     }
+    
+    private class FazSalvamento implements ActionListener{
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser arq = new JFileChooser();
+            arq.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            int resultado = arq.showSaveDialog(Editor.this);
+            if (resultado == JFileChooser.APPROVE_OPTION){
+                File arquivo = arq.getSelectedFile();
+                try(BufferedWriter escritor = new BufferedWriter(new FileWriter(arquivo))){
+                    for (int i = 0; i<qtasFiguras; i++){
+                        escritor.write(figuras[i].toString());
+                        escritor.newLine();
+                    }
+                    JOptionPane.showMessageDialog(Editor.this,
+                            "Figuras salvas com sucesso!",
+                            "Salvar",
+                            JOptionPane.INFORMATION_MESSAGE);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(Editor.this,
+                            "Erro ao salvar o arquivo!",
+                            "Erro",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+    }
+
+    private class FazPonto implements ActionListener{
+
+
+        public void actionPerformed(ActionEvent e) {
+            pnlDesenho.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e){
+                    int x = e.getX();
+                    int y = e.getY();
+                    Ponto ponto = new Ponto(x, y, Color.BLACK);//Pode mudar a cor padrão
+
+                    figuras[qtasFiguras++] = ponto;
+                    pnlDesenho.repaint();
+                }
+            });
+        }
+    }
+
+    private class FazLinha implements ActionListener{
+
+
+        public void actionPerformed(ActionEvent e) {
+            pnlDesenho.addMouseListener(new MouseAdapter() {
+                private Ponto pontoInicial = null;
+                @Override
+                public void mousePressed(MouseEvent e){
+                    int x = e.getX();
+                    int y = e.getY();
+                    if (pontoInicial == null){
+                        pontoInicial = new Ponto(x, y, Color.BLACK);//Pode mudar a cor padrão
+                    }
+                    else{
+                        //Ponto inicial já definido
+                        Ponto pontoFinal = new Ponto(x, y, Color.BLACK);
+
+
+                    Linha linha = new Linha(pontoInicial.getX(), pontoInicial.getY(), pontoFinal.getX(), pontoFinal.getY(), Color.BLACK);
+
+                    figuras[qtasFiguras++] = linha;
+                    pontoInicial = null; //Limpa o ponto inicial para permitir criar outra linha
+                    pnlDesenho.repaint();
+                    }
+
+
+                }
+            });
+        }
+    }
+
+    private class FazCirculo implements ActionListener{
+
+
+        public void actionPerformed(ActionEvent e) {
+            pnlDesenho.addMouseListener(new MouseAdapter() {
+                private Ponto pontoCentro = null;
+                private int raio = 0;
+                @Override
+                public void mousePressed(MouseEvent e){
+                    int x = e.getX();
+                    int y = e.getY();
+                    if (pontoCentro == null){
+                        pontoCentro = new Ponto(x, y, Color.BLACK);//Pode mudar a cor padrão
+                    }
+                    else{
+                        //Ponto inicial já definido
+
+                        //O raio é a hipotenusa do triangulo cujos catetos são as distancias do centro em relacao ao outro ponto clicado em realçaõ a x a y
+                        //Por pitagoras hipotenusa² = (x - xCentro)² + (y - yCentro)² --> hipotenusa = √(x - xCentro)² + (y - yCentro)
+                        raio = (int) Math.sqrt(Math.pow(x - pontoCentro.getX(), 2) + Math.pow(y - pontoCentro.getY(), 2));
+
+
+                        Circulo circulo = new Circulo(pontoCentro.getX(), pontoCentro.getY(), raio, Color.BLACK);
+
+                        figuras[qtasFiguras++] = circulo;
+                        pontoCentro = null; //Limpa o ponto central para permitir criar outro circulo
+                        pnlDesenho.repaint();
+                    }
+
+
+                }
+            });
+        }
+    }
+
+    private class FazOval implements ActionListener{
+
+
+        public void actionPerformed(ActionEvent e) {
+            pnlDesenho.addMouseListener(new MouseAdapter() {
+                private Ponto primeiroCentro = null;
+                private int raioX = 0;
+                private int raioY = 0;
+                @Override
+                public void mousePressed(MouseEvent e){
+                    int x = e.getX();
+                    int y = e.getY();
+                    if (primeiroCentro == null){
+                        primeiroCentro = new Ponto(x, y, Color.BLACK);//Pode mudar a cor padrão
+                    }
+                    else{
+                        //Ponto inicial já definido
+
+                        raioX = Math.abs(x - primeiroCentro.getX());
+                        raioY = Math.abs(y - primeiroCentro.getY());
+
+                        Oval elipse = new Oval(primeiroCentro.getX(), primeiroCentro.getY(), raioX, raioY, Color.BLACK);
+
+                        figuras[qtasFiguras++] = elipse;
+                        primeiroCentro = null; //Limpa o ponto central para permitir criar outro circulo
+                        pnlDesenho.repaint();
+                    }
+
+
+                }
+            });
+        }
+    }
+
 
     private class MeuJPanel extends JPanel {
         public void paintComponent(Graphics g) {
