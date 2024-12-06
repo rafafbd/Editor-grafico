@@ -37,6 +37,7 @@ public class Editor extends JFrame{ // Formulário GUI
         btnLinha.addActionListener(new FazLinha());
         btnCirculo.addActionListener(new FazCirculo());
         btnElipse.addActionListener(new FazOval());
+        btnApagar.addActionListener(new ApagaTela());
         pnlBotoes.add(btnAbrir);
         pnlBotoes.add(btnSalvar);
         pnlBotoes.add(btnPonto);
@@ -226,6 +227,12 @@ public class Editor extends JFrame{ // Formulário GUI
         }
     }
 
+    private class ApagaTela implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+            qtasFiguras = 0;
+            repaint();
+        }
+    }
 
     private class FazAbertura implements ActionListener {
         public void actionPerformed(ActionEvent e) {
@@ -282,6 +289,8 @@ public class Editor extends JFrame{ // Formulário GUI
             }
         }
     }
+
+    
 
     private class MeuJPanel extends JPanel {
         public void paintComponent(Graphics g) {
