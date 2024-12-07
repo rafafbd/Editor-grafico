@@ -41,6 +41,6 @@ public class Oval extends Ponto {
 
     public void desenhar(Graphics g) {
         g.setColor(cor);
-        g.drawOval(getX()- raioX, getY()- raioY, 2* raioX,2* raioY);
+        g.drawOval(x- raioX, y- raioY, 2* raioX,2* raioY);
     }
 }

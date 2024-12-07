@@ -8,25 +8,29 @@ public class Editor extends JFrame{ // Formulário GUI
     private JButton btnPonto, btnLinha, btnCirculo, btnElipse, btnCor, btnAbrir,
             btnSalvar, btnApagar, btnSair;
     private JPanel pnlBotoes;
-    static private JInternalFrame frame;
+
 
     static private MeuJPanel pnlDesenho;
     private static Ponto[] figuras = new Ponto[1000];
     static int qtasFiguras;
 
+    static boolean esperandoPonto;
+
+    static JLabel statusBar1, statusBar2;
+
 
     public Editor(){
         super("Editor Gráfico"); // super construtor
 
-        btnAbrir = new JButton("Abrir", new ImageIcon("abrir.jpg"));
-        btnSalvar = new JButton("Salvar", new ImageIcon("salvar.bmp"));
-        btnPonto = new JButton("Ponto", new ImageIcon("ponto.bmp"));
-        btnLinha = new JButton("Linha", new ImageIcon("linha.bmp"));
-        btnCirculo = new JButton("Circulo", new ImageIcon("circulo.bmp"));
-        btnElipse = new JButton("Elipse", new ImageIcon("elipse.bmp"));
-        btnCor = new JButton("Cores", new ImageIcon("cores.bmp"));
-        btnApagar = new JButton("Apagar", new ImageIcon("apagar.bmp"));
-        btnSair = new JButton("Sair", new ImageIcon("sair.bmp"));
+        btnAbrir = new JButton("Abrir"/*, new ImageIcon("abrir.jpg")*/);
+        btnSalvar = new JButton("Salvar"/*, new ImageIcon("salvar.bmp")*/);
+        btnPonto = new JButton("Ponto"/*, new ImageIcon("ponto.bmp")*/);
+        btnLinha = new JButton("Linha"/*, new ImageIcon("linha.bmp")*/);
+        btnCirculo = new JButton("Circulo"/*, new ImageIcon("circulo.bmp")*/);
+        btnElipse = new JButton("Elipse"/*, new ImageIcon("elipse.bmp")*/);
+        btnCor = new JButton("Cores"/*, new ImageIcon("cores.bmp")*/);
+        btnApagar = new JButton("Apagar"/*, new ImageIcon("apagar.bmp")*/);
+        btnSair = new JButton("Sair"/*, new ImageIcon("sair.bmp")*/);
 
         pnlBotoes = new JPanel();
         FlowLayout flwBotoes = new FlowLayout();
@@ -54,19 +58,17 @@ public class Editor extends JFrame{ // Formulário GUI
         JDesktopPane panDesenho = new JDesktopPane();
         cntForm.add(panDesenho);
 
-        frame = new JInternalFrame("Nenhum arquivo aberto", true, true, true, true);
-        panDesenho.add(frame);
+        pnlDesenho = new MeuJPanel("Nenhum arquivo aberto", true, true, true, true);
+        panDesenho.add(pnlDesenho);
 
         setSize(900,700);
         show();
 
-        frame.setSize(this.getWidth() / 2,this.getHeight() / 2);
-        frame.setOpaque(true);
-        frame.show();
+        pnlDesenho.setSize(this.getWidth() / 2,this.getHeight() / 2);
+        pnlDesenho.setOpaque(true);
+        pnlDesenho.show();
 
-        pnlDesenho = new MeuJPanel();
-        Container cntFrame = frame.getContentPane();
-        cntFrame.add(pnlDesenho);
+        cntForm.add(panDesenho, BorderLayout.CENTER);
     }
 
     public static void main(String[] args) {
@@ -128,8 +130,6 @@ public class Editor extends JFrame{ // Formulário GUI
     }
 
     private class FazLinha implements ActionListener{
-
-
         public void actionPerformed(ActionEvent e) {
             pnlDesenho.addMouseListener(new MouseAdapter() {
                 private Ponto pontoInicial = null;
@@ -143,7 +143,6 @@ public class Editor extends JFrame{ // Formulário GUI
                     else{
                         //Ponto inicial já definido
                         Ponto pontoFinal = new Ponto(x, y, Color.BLACK);
-
 
                     Linha linha = new Linha(pontoInicial.getX(), pontoInicial.getY(), pontoFinal.getX(), pontoFinal.getY(), Color.BLACK);
 
@@ -159,8 +158,6 @@ public class Editor extends JFrame{ // Formulário GUI
     }
 
     private class FazCirculo implements ActionListener{
-
-
         public void actionPerformed(ActionEvent e) {
             pnlDesenho.addMouseListener(new MouseAdapter() {
                 private Ponto pontoCentro = null;
@@ -194,8 +191,6 @@ public class Editor extends JFrame{ // Formulário GUI
     }
 
     private class FazOval implements ActionListener{
-
-
         public void actionPerformed(ActionEvent e) {
             pnlDesenho.addMouseListener(new MouseAdapter() {
                 private Ponto primeiroCentro = null;
@@ -220,8 +215,6 @@ public class Editor extends JFrame{ // Formulário GUI
                         primeiroCentro = null; //Limpa o ponto central para permitir criar outro circulo
                         pnlDesenho.repaint();
                     }
-
-
                 }
             });
         }
@@ -233,7 +226,6 @@ public class Editor extends JFrame{ // Formulário GUI
             repaint();
         }
     }
-
     private class FazAbertura implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             JFileChooser arqEscolhido = new JFileChooser();
@@ -277,7 +269,7 @@ public class Editor extends JFrame{ // Formulário GUI
                         linha = arqFiguras.readLine();
                     }
                     arqFiguras.close();
-                    frame.setTitle(arquivo.getName());
+                    pnlDesenho.setTitle(arquivo.getName());
                     repaint();
                 }
                 catch (IOException ioe){
@@ -292,10 +284,45 @@ public class Editor extends JFrame{ // Formulário GUI
 
     
 
-    private class MeuJPanel extends JPanel {
+    private class MeuJPanel extends JInternalFrame implements MouseListener, MouseMotionListener {
+
+        public void mouseMoved(MouseEvent e) {
+            statusBar2.setText("Coordenada: "+e.getX()+","+e.getY());
+        }
+        public void mouseDragged(MouseEvent e) {
+        }
+        public void mouseClicked (MouseEvent e) {
+        }
+        public void mousePressed (MouseEvent e) {
+        }
+        public void mouseEntered (MouseEvent e) {
+        }
+        public void mouseExited (MouseEvent e)
+        {
+        }
+        public void mouseReleased (MouseEvent e) {
+        }
+        //"Nenhum arquivo aberto", true, true, true, true
+        public MeuJPanel(String titulo, boolean resizable, boolean closable, boolean maximixable, boolean iconifiable){
+            super(titulo, resizable, closable, maximixable, iconifiable);
+            Container frame = getContentPane();
+            JPanel pnlStatus = new JPanel();
+            pnlStatus.setLayout(new GridLayout(1,2));
+            statusBar1 = new JLabel("Mensagem: ");
+            statusBar2 = new JLabel("Coordenada: ");
+            pnlStatus.add(statusBar1);
+            pnlStatus.add(statusBar2);
+
+            frame.add(pnlStatus, BorderLayout.SOUTH);
+
+            addMouseListener(this);
+            addMouseMotionListener(this);
+        }
+
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
             for (int qualFigura =0 ; qualFigura < qtasFiguras; qualFigura++){
+                System.out.println(figuras[qualFigura].getClass());
                 System.out.println("Tentou desenhar");
                 figuras[qualFigura].desenhar(g);
             }
