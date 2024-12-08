@@ -14,6 +14,8 @@ public class Editor extends JFrame{ // Formulário GUI
     private static Ponto[] figuras = new Ponto[1000];
     static int qtasFiguras;
 
+    static private JInternalFrame frame;
+
     static boolean esperandoPonto;
 
     static JLabel statusBar1, statusBar2;
@@ -58,15 +60,22 @@ public class Editor extends JFrame{ // Formulário GUI
         JDesktopPane panDesenho = new JDesktopPane();
         cntForm.add(panDesenho);
 
-        pnlDesenho = new MeuJPanel("Nenhum arquivo aberto", true, true, true, true);
+        frame = new JInternalFrame("Nenhum arquivo aberto", true, true, true, true);
+        panDesenho.add(frame);
+
+        pnlDesenho = new MeuJPanel();
         panDesenho.add(pnlDesenho);
 
         setSize(900,700);
         show();
 
-        pnlDesenho.setSize(this.getWidth() / 2,this.getHeight() / 2);
-        pnlDesenho.setOpaque(true);
-        pnlDesenho.show();
+        frame.setSize(this.getWidth() / 2,this.getHeight() / 2);
+        frame.setOpaque(true);
+        frame.show();
+
+        pnlDesenho = new MeuJPanel();
+        Container cntFrame = frame.getContentPane();
+        cntFrame.add(pnlDesenho);
 
         cntForm.add(panDesenho, BorderLayout.CENTER);
     }
@@ -269,7 +278,7 @@ public class Editor extends JFrame{ // Formulário GUI
                         linha = arqFiguras.readLine();
                     }
                     arqFiguras.close();
-                    pnlDesenho.setTitle(arquivo.getName());
+                    //pnlDesenho.setTitle(arquivo.getName());
                     repaint();
                 }
                 catch (IOException ioe){
@@ -284,7 +293,7 @@ public class Editor extends JFrame{ // Formulário GUI
 
     
 
-    private class MeuJPanel extends JInternalFrame implements MouseListener, MouseMotionListener {
+    private class MeuJPanel extends JPanel implements MouseListener, MouseMotionListener {
 
         public void mouseMoved(MouseEvent e) {
             statusBar2.setText("Coordenada: "+e.getX()+","+e.getY());
@@ -303,8 +312,8 @@ public class Editor extends JFrame{ // Formulário GUI
         public void mouseReleased (MouseEvent e) {
         }
         //"Nenhum arquivo aberto", true, true, true, true
-        public MeuJPanel(String titulo, boolean resizable, boolean closable, boolean maximixable, boolean iconifiable){
-            super(titulo, resizable, closable, maximixable, iconifiable);
+        public MeuJPanel(){
+            super();
             Container frame = getContentPane();
             JPanel pnlStatus = new JPanel();
             pnlStatus.setLayout(new GridLayout(1,2));
