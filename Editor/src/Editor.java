@@ -7,7 +7,7 @@ import javax.swing.*;
 public class Editor extends JFrame{ // Formulário GUI
 
     private JButton btnPonto, btnLinha, btnCirculo, btnElipse, btnCor, btnAbrir,
-            btnSalvar, btnApagar, btnSair;
+            btnSalvar, btnApagar, btnSair, btnRetangulo;
     private JPanel pnlBotoes;
 
     static private Color corAtual = Color.BLACK; //Cor inicial
@@ -32,6 +32,7 @@ public class Editor extends JFrame{ // Formulário GUI
         btnLinha = new JButton("Linha"/*, new ImageIcon("linha.bmp")*/);
         btnCirculo = new JButton("Circulo"/*, new ImageIcon("circulo.bmp")*/);
         btnElipse = new JButton("Elipse"/*, new ImageIcon("elipse.bmp")*/);
+        btnRetangulo = new JButton("Retangulo"/*, new ImageIcon("elipse.bmp")*/);
         btnCor = new JButton("Cores"/*, new ImageIcon("cores.bmp")*/);
         btnApagar = new JButton("Apagar"/*, new ImageIcon("apagar.bmp")*/);
         btnSair = new JButton("Sair"/*, new ImageIcon("sair.bmp")*/);
@@ -45,6 +46,7 @@ public class Editor extends JFrame{ // Formulário GUI
         btnLinha.addActionListener(new FazLinha());
         btnCirculo.addActionListener(new FazCirculo());
         btnElipse.addActionListener(new FazOval());
+        btnRetangulo.addActionListener(new FazRetangulo());
         btnApagar.addActionListener(new ApagaTela());
         btnCor.addActionListener(new EscolheCor());
         btnSair.addActionListener(new FazSair());
@@ -54,6 +56,7 @@ public class Editor extends JFrame{ // Formulário GUI
         pnlBotoes.add(btnLinha);
         pnlBotoes.add(btnCirculo);
         pnlBotoes.add(btnElipse);
+        pnlBotoes.add(btnRetangulo);
         pnlBotoes.add(btnCor);
         pnlBotoes.add(btnApagar);
         pnlBotoes.add(btnSair);
@@ -208,6 +211,37 @@ public class Editor extends JFrame{ // Formulário GUI
                     figuras[qtasFiguras++] = linha;
                     pontoInicial = null; //Limpa o ponto inicial para permitir criar outra linha
                     pnlDesenho.repaint();
+                    }
+
+
+                }
+            });
+        }
+    }
+
+    private class FazRetangulo implements ActionListener{
+        public void actionPerformed(ActionEvent e) {
+            pnlDesenho.addMouseListener(new MouseAdapter() {
+                private Ponto pontoInicial = null;
+                @Override
+                public void mousePressed(MouseEvent e){
+                    int x = e.getX();
+                    int y = e.getY();
+                    if (pontoInicial == null){
+                        pontoInicial = new Ponto(x, y, corAtual);//Pode mudar a cor padrão
+                    }
+                    else{
+                        //Ponto inicial já definido
+                        Ponto pontoFinal = new Ponto(x, y, corAtual);
+                        int xMin = Math.min(pontoInicial.getX(), pontoFinal.getX());
+                        int yMin = Math.min(pontoInicial.getY(), pontoFinal.getY());
+                        int largura = Math.abs(pontoFinal.getX() - pontoInicial.getX());
+                        int altura = Math.abs(pontoFinal.getY() - pontoInicial.getY());
+                        Retangulo retangulo = new Retangulo(xMin, yMin, largura, altura, corAtual);
+
+                        figuras[qtasFiguras++] = retangulo;
+                        pontoInicial = null; //Limpa o ponto inicial para permitir criar outra linha
+                        pnlDesenho.repaint();
                     }
 
 
