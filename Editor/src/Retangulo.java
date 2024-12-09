@@ -17,15 +17,8 @@ public class Retangulo extends Ponto {
 
     private void setAltura(int altura){this.altura = altura;}
 
-    public String transformaString(String valor, int quantasPosicoes) {
-        String cadeia = valor;
-        while (cadeia.length() < quantasPosicoes)
-            cadeia = cadeia + " ";
-        return cadeia.substring(0,quantasPosicoes);
-    }
-
     public String toString(){
-        return transformaString("p", 5) +
+        return transformaString("r", 5) +
                 transformaString(Integer.toString(x),5)+
                 transformaString(Integer.toString(y),5)+
                 transformaString(Integer.toString(getCor().getRed()),5)+

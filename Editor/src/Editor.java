@@ -7,8 +7,8 @@ import javax.swing.*;
 public class Editor extends JFrame{ // Formulário GUI
 
     private JButton btnPonto, btnLinha, btnCirculo, btnElipse, btnCor, btnAbrir,
-            btnSalvar, btnApagar, btnSair, btnRetangulo, btnSelecionar, btnMudarCor,
-            btnLimpaSelecionados, btnApagaSelecionados;
+            btnSalvar, btnApagar, btnSair, btnRetangulo, btnPolilinha, btnSelecionar, btnMudarCor,
+            btnLimpaSelecionados, btnApagaSelecionados, btnDeslocar;
     private JPanel pnlBotoes;
 
     static private Color corAtual = Color.BLACK; //Cor inicial
@@ -16,13 +16,14 @@ public class Editor extends JFrame{ // Formulário GUI
     static private MeuJPanel pnlDesenho;
 
     private static Ponto[] figuras = new Ponto[1000];
-    private static int[] indicesSelecionados= new int[1000];
+    private static int[] indicesSelecionados = new int[1000];
     static int qtasFiguras;
     static int qtosIndicesSelecionados;
 
     static private JInternalFrame frame;
 
-    static boolean esperandoPonto;
+    static private String figuraEsperada = ""; // se for "", eh porque nao se espera nenhuma
+    static private boolean fezPolilinha = false; // variavel especifica para o funcionamento da polilinha
 
     static JLabel statusBar1, statusBar2;
 
@@ -30,24 +31,26 @@ public class Editor extends JFrame{ // Formulário GUI
     public Editor(){
         super("Editor Gráfico"); // super construtor
 
-        btnAbrir = new JButton("Abrir"/*, new ImageIcon("abrir.jpg")*/);
-        btnSalvar = new JButton("Salvar"/*, new ImageIcon("salvar.bmp")*/);
-        btnPonto = new JButton("Ponto"/*, new ImageIcon("ponto.bmp")*/);
-        btnLinha = new JButton("Linha"/*, new ImageIcon("linha.bmp")*/);
-        btnCirculo = new JButton("Circulo"/*, new ImageIcon("circulo.bmp")*/);
-        btnElipse = new JButton("Elipse"/*, new ImageIcon("elipse.bmp")*/);
-        btnRetangulo = new JButton("Retangulo"/*, new ImageIcon("elipse.bmp")*/);
-        btnCor = new JButton("Cores"/*, new ImageIcon("cores.bmp")*/);
-        btnApagar = new JButton("Apagar"/*, new ImageIcon("apagar.bmp")*/);
-        btnMudarCor = new JButton("Mudar Cor"/*, new ImageIcon("apagar.bmp")*/);
-        btnSelecionar = new JButton("Selecionar"/*, new ImageIcon("sair.bmp")*/);
-        btnSair = new JButton("Sair"/*, new ImageIcon("sair.bmp")*/);
+        btnAbrir = new JButton("Abrir");
+        btnSalvar = new JButton("Salvar");
+        btnPonto = new JButton("Ponto");
+        btnLinha = new JButton("Linha");
+        btnCirculo = new JButton("Circulo");
+        btnElipse = new JButton("Elipse");
+        btnRetangulo = new JButton("Retangulo");
+        btnCor = new JButton("Cores");
+        btnApagar = new JButton("Apagar");
+        btnMudarCor = new JButton("Mudar Cor");
+        btnSelecionar = new JButton("Selecionar");
+        btnSair = new JButton("Sair");
         btnLimpaSelecionados = new JButton("Limpar Selecionados");
         btnApagaSelecionados = new JButton("Apagar Selecionados");
+        btnPolilinha = new JButton("Polilinha");
+        btnDeslocar = new JButton("Deslocar");
+
 
         pnlBotoes = new JPanel();
-        FlowLayout flwBotoes = new FlowLayout();
-        pnlBotoes.setLayout(flwBotoes);
+        pnlBotoes.setLayout(new GridLayout(2, 10));
         btnAbrir.addActionListener(new FazAbertura());
         btnSalvar.addActionListener(new FazSalvamento());
         btnPonto.addActionListener(new FazPonto());
@@ -55,10 +58,13 @@ public class Editor extends JFrame{ // Formulário GUI
         btnCirculo.addActionListener(new FazCirculo());
         btnElipse.addActionListener(new FazOval());
         btnRetangulo.addActionListener(new FazRetangulo());
+        btnPolilinha.addActionListener(new FazPolilinha());
         btnApagar.addActionListener(new ApagaTela());
         btnSelecionar.addActionListener(new FazSelecionar());
         btnCor.addActionListener(new EscolheCor());
         btnMudarCor.addActionListener(new FazMudarCor());
+        btnDeslocar.addActionListener(new FazDeslocamento());
+
         btnLimpaSelecionados.addActionListener(new LimpaSelecionados());
         btnApagaSelecionados.addActionListener(new ApagaSelecionados());
         btnSair.addActionListener(new FazSair());
@@ -69,10 +75,12 @@ public class Editor extends JFrame{ // Formulário GUI
         pnlBotoes.add(btnCirculo);
         pnlBotoes.add(btnElipse);
         pnlBotoes.add(btnRetangulo);
+        pnlBotoes.add(btnPolilinha);
         pnlBotoes.add(btnCor);
         pnlBotoes.add(btnApagar);
         pnlBotoes.add(btnSelecionar);
         pnlBotoes.add(btnMudarCor);
+        pnlBotoes.add(btnDeslocar);
         pnlBotoes.add(btnLimpaSelecionados);
         pnlBotoes.add(btnApagaSelecionados);
         pnlBotoes.add(btnSair);
@@ -209,6 +217,20 @@ public class Editor extends JFrame{ // Formulário GUI
         }
     }
 
+    private class FazDeslocamento implements ActionListener{
+
+        public void actionPerformed(ActionEvent e){
+            int deltaX = Integer.parseInt(JOptionPane.showInputDialog(null, "Deslocamento para o lado: ", "Deslocamento de figuras", JOptionPane.PLAIN_MESSAGE));
+            int deltaY = Integer.parseInt(JOptionPane.showInputDialog(null, "Deslocamento para o cima/baixo: ", "Deslocamento de figuras", JOptionPane.PLAIN_MESSAGE));
+            for (int indice=0; indice<qtosIndicesSelecionados; indice++){
+                Ponto figura = figuras[indicesSelecionados[indice]];
+                figura.setX(figura.getX() + deltaX);
+                figura.setY(figura.getY() + deltaY);
+            }
+            pnlDesenho.repaint();
+        }
+    }
+
     private class FazMudarCor implements ActionListener{
 
         public void actionPerformed(ActionEvent e) {
@@ -234,15 +256,18 @@ public class Editor extends JFrame{ // Formulário GUI
 
 
         public void actionPerformed(ActionEvent e) {
+            figuraEsperada = "Ponto";
             pnlDesenho.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mousePressed(MouseEvent e){
-                    int x = e.getX();
-                    int y = e.getY();
-                    Ponto ponto = new Ponto(x, y, corAtual);//Pode mudar a cor padrão
+                    if (figuraEsperada.equals("Ponto")){
+                        int x = e.getX();
+                        int y = e.getY();
+                        Ponto ponto = new Ponto(x, y, corAtual);//Pode mudar a cor padrão
 
-                    figuras[qtasFiguras++] = ponto;
-                    pnlDesenho.repaint();
+                        figuras[qtasFiguras++] = ponto;
+                        pnlDesenho.repaint();
+                    }
                 }
             });
         }
@@ -265,8 +290,6 @@ public class Editor extends JFrame{ // Formulário GUI
     }
 
     private class FazSair implements ActionListener{
-
-
         public void actionPerformed(ActionEvent e) {
             Object[] options = {"Salvar e Sair", "Sair Sem Salvar", "Cancelar"};
             int resposta = JOptionPane.showOptionDialog(
@@ -292,58 +315,97 @@ public class Editor extends JFrame{ // Formulário GUI
 
     private class FazLinha implements ActionListener{
         public void actionPerformed(ActionEvent e) {
+            figuraEsperada = "Linha";
             pnlDesenho.addMouseListener(new MouseAdapter() {
                 private Ponto pontoInicial = null;
                 @Override
                 public void mousePressed(MouseEvent e){
-                    int x = e.getX();
-                    int y = e.getY();
-                    if (pontoInicial == null){
-                        pontoInicial = new Ponto(x, y, corAtual);//Pode mudar a cor padrão
+                    if (figuraEsperada.equals("Linha")){
+                        int x = e.getX();
+                        int y = e.getY();
+                        if (pontoInicial == null){
+                            pontoInicial = new Ponto(x, y, corAtual);//Pode mudar a cor padrão
+                        }
+                        else{
+                            //Ponto inicial já definido
+                            Ponto pontoFinal = new Ponto(x, y, corAtual);
+
+                            Linha linha = new Linha(pontoInicial.getX(), pontoInicial.getY(), pontoFinal.getX(), pontoFinal.getY(), corAtual);
+
+                            figuras[qtasFiguras++] = linha;
+                            pontoInicial = null; //Limpa o ponto inicial para permitir criar outra linha
+                            pnlDesenho.repaint();
+                        }
                     }
-                    else{
-                        //Ponto inicial já definido
-                        Ponto pontoFinal = new Ponto(x, y, corAtual);
-
-                    Linha linha = new Linha(pontoInicial.getX(), pontoInicial.getY(), pontoFinal.getX(), pontoFinal.getY(), corAtual);
-
-                    figuras[qtasFiguras++] = linha;
-                    pontoInicial = null; //Limpa o ponto inicial para permitir criar outra linha
-                    pnlDesenho.repaint();
-                    }
-
-
                 }
             });
         }
     }
 
+    private class FazPolilinha implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+            if (figuraEsperada.equals("Polilinha")) {
+                System.out.println("vai desenhar");
+                figuraEsperada = "";
+                fezPolilinha = false;
+                pnlDesenho.repaint();
+                statusBar1.setText("Mensagem: Nenhuma figura selecionada");
+            }
+            else {
+                figuraEsperada = "Polilinha";
+                pnlDesenho.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    if (figuraEsperada.equals("Polilinha")){
+                        int x = e.getX();
+                        int y = e.getY();
+                        if (!fezPolilinha){
+                            Polilinha poly = new Polilinha(x, y, corAtual);
+                            figuras[qtasFiguras++] = poly;
+                            fezPolilinha = true;
+                            System.out.println("Inicializou a polilinha");
+                        }
+                        else {
+                            System.out.println("Novo ponto da polilinha");
+                            Polilinha poly = (Polilinha) figuras[qtasFiguras-1];
+                            poly.setNovoPonto(x, y);
+                        }
+                    }
+            }
+        });
+                statusBar1.setText("Mensagem: Desenhe pontos ou clique [Polilinha] para terminar");
+            }
+        }
+
+    }
+
     private class FazRetangulo implements ActionListener{
         public void actionPerformed(ActionEvent e) {
+            figuraEsperada = "Retangulo";
             pnlDesenho.addMouseListener(new MouseAdapter() {
                 private Ponto pontoInicial = null;
                 @Override
                 public void mousePressed(MouseEvent e){
-                    int x = e.getX();
-                    int y = e.getY();
-                    if (pontoInicial == null){
-                        pontoInicial = new Ponto(x, y, corAtual);//Pode mudar a cor padrão
+                    if (figuraEsperada.equals("Retangulo")){
+                        int x = e.getX();
+                        int y = e.getY();
+                        if (pontoInicial == null){
+                            pontoInicial = new Ponto(x, y, corAtual);//Pode mudar a cor padrão
+                        }
+                        else{
+                            //Ponto inicial já definido
+                            Ponto pontoFinal = new Ponto(x, y, corAtual);
+                            int xMin = Math.min(pontoInicial.getX(), pontoFinal.getX());
+                            int yMin = Math.min(pontoInicial.getY(), pontoFinal.getY());
+                            int largura = Math.abs(pontoFinal.getX() - pontoInicial.getX());
+                            int altura = Math.abs(pontoFinal.getY() - pontoInicial.getY());
+                            Retangulo retangulo = new Retangulo(xMin, yMin, largura, altura, corAtual);
+
+                            figuras[qtasFiguras++] = retangulo;
+                            pontoInicial = null; //Limpa o ponto inicial para permitir criar outra linha
+                            pnlDesenho.repaint();
+                        }
                     }
-                    else{
-                        //Ponto inicial já definido
-                        Ponto pontoFinal = new Ponto(x, y, corAtual);
-                        int xMin = Math.min(pontoInicial.getX(), pontoFinal.getX());
-                        int yMin = Math.min(pontoInicial.getY(), pontoFinal.getY());
-                        int largura = Math.abs(pontoFinal.getX() - pontoInicial.getX());
-                        int altura = Math.abs(pontoFinal.getY() - pontoInicial.getY());
-                        Retangulo retangulo = new Retangulo(xMin, yMin, largura, altura, corAtual);
-
-                        figuras[qtasFiguras++] = retangulo;
-                        pontoInicial = null; //Limpa o ponto inicial para permitir criar outra linha
-                        pnlDesenho.repaint();
-                    }
-
-
                 }
             });
         }
@@ -351,61 +413,70 @@ public class Editor extends JFrame{ // Formulário GUI
 
     private class FazCirculo implements ActionListener{
         public void actionPerformed(ActionEvent e) {
+            figuraEsperada = "Circulo";
             pnlDesenho.addMouseListener(new MouseAdapter() {
                 private Ponto pontoCentro = null;
                 private int raio = 0;
                 @Override
                 public void mousePressed(MouseEvent e){
-                    int x = e.getX();
-                    int y = e.getY();
-                    if (pontoCentro == null){
-                        pontoCentro = new Ponto(x, y, corAtual);//Pode mudar a cor padrão
+                    if (figuraEsperada.equals("Circulo")){
+                        int x = e.getX();
+                        int y = e.getY();
+                        if (pontoCentro == null){
+                            pontoCentro = new Ponto(x, y, corAtual);//Pode mudar a cor padrão
+                        }
+                        else{
+                            //Ponto inicial já definido
+
+                            //O raio é a hipotenusa do triangulo cujos catetos são as distancias do centro em relacao ao outro ponto clicado em realçaõ a x a y
+                            //Por pitagoras hipotenusa² = (x - xCentro)² + (y - yCentro)² --> hipotenusa = √(x - xCentro)² + (y - yCentro)
+                            raio = (int) Math.sqrt(Math.pow(x - pontoCentro.getX(), 2) + Math.pow(y - pontoCentro.getY(), 2));
+
+                            Circulo circulo = new Circulo(pontoCentro.getX(), pontoCentro.getY(), raio, corAtual);
+
+                            figuras[qtasFiguras++] = circulo;
+                            pontoCentro = null; //Limpa o ponto central para permitir criar outro circulo
+                            pnlDesenho.repaint();
+                        }
                     }
-                    else{
-                        //Ponto inicial já definido
-
-                        //O raio é a hipotenusa do triangulo cujos catetos são as distancias do centro em relacao ao outro ponto clicado em realçaõ a x a y
-                        //Por pitagoras hipotenusa² = (x - xCentro)² + (y - yCentro)² --> hipotenusa = √(x - xCentro)² + (y - yCentro)
-                        raio = (int) Math.sqrt(Math.pow(x - pontoCentro.getX(), 2) + Math.pow(y - pontoCentro.getY(), 2));
-
-
-                        Circulo circulo = new Circulo(pontoCentro.getX(), pontoCentro.getY(), raio, corAtual);
-
-                        figuras[qtasFiguras++] = circulo;
-                        pontoCentro = null; //Limpa o ponto central para permitir criar outro circulo
-                        pnlDesenho.repaint();
-                    }
-
-
                 }
             });
         }
     }
 
     private class FazOval implements ActionListener{
+        public Ponto primeiroCentro = null;
         public void actionPerformed(ActionEvent e) {
+            figuraEsperada = "Oval";
+//            if (primeiroCentro == null){
+//                statusBar1.setText("Mensagem: Clique no primeiro centro");
+//            }
+//            else {
+//                statusBar1.setText("Mensagem: Clique no Segundo centro");
+//            }
             pnlDesenho.addMouseListener(new MouseAdapter() {
-                private Ponto primeiroCentro = null;
                 private int raioX = 0;
                 private int raioY = 0;
                 @Override
                 public void mousePressed(MouseEvent e){
-                    int x = e.getX();
-                    int y = e.getY();
-                    if (primeiroCentro == null){
-                        primeiroCentro = new Ponto(x, y, corAtual);//Pode mudar a cor padrão
-                    }
-                    else{
-                        //Ponto inicial já definido
+                    if (figuraEsperada.equals("Oval")){
+                        int x = e.getX();
+                        int y = e.getY();
+                        if (primeiroCentro == null){
+                            primeiroCentro = new Ponto(x, y, corAtual);//Pode mudar a cor padrão
+                        }
+                        else{
+                            //Ponto inicial já definido
 
-                        raioX = Math.abs(x - primeiroCentro.getX());
-                        raioY = Math.abs(y - primeiroCentro.getY());
+                            raioX = Math.abs(x - primeiroCentro.getX());
+                            raioY = Math.abs(y - primeiroCentro.getY());
 
-                        Oval elipse = new Oval(primeiroCentro.getX(), primeiroCentro.getY(), raioX, raioY, corAtual);
+                            Oval elipse = new Oval(primeiroCentro.getX(), primeiroCentro.getY(), raioX, raioY, corAtual);
 
-                        figuras[qtasFiguras++] = elipse;
-                        primeiroCentro = null; //Limpa o ponto central para permitir criar outro circulo
-                        pnlDesenho.repaint();
+                            figuras[qtasFiguras++] = elipse;
+                            primeiroCentro = null; //Limpa o ponto central para permitir criar outro circulo
+                            pnlDesenho.repaint();
+                        }
                     }
                 }
             });
@@ -416,6 +487,8 @@ public class Editor extends JFrame{ // Formulário GUI
         public void actionPerformed(ActionEvent e){
             qtasFiguras = 0;
             qtosIndicesSelecionados = 0;
+            figuras = new Ponto[1000];
+            indicesSelecionados = new int[1000];
             repaint();
         }
     }
@@ -446,7 +519,8 @@ public class Editor extends JFrame{ // Formulário GUI
                         Color cor = new Color(corR, corG, corB);
                         switch (tipo.charAt(0)) // verificar qual tipo de figura
                         {
-                            case 'p': figuras[qtasFiguras++] = new Ponto(xBase, yBase, cor); break;
+                            case 'p':
+                                figuras[qtasFiguras++] = new Ponto(xBase, yBase, cor); break;
                             case 'l':
                                 int xFinal =Integer.parseInt(linha.substring(30,35).trim());
                                 int yFinal =Integer.parseInt(linha.substring(35,40).trim());
@@ -457,13 +531,20 @@ public class Editor extends JFrame{ // Formulário GUI
                             case 'o':
                                 int raioA =Integer.parseInt(linha.substring(30,35).trim());
                                 int raioB =Integer.parseInt(linha.substring(35,40).trim());
-                                figuras[qtasFiguras++] = new Oval(xBase, yBase, raioA, raioB, cor);
+                                figuras[qtasFiguras++] = new Oval(xBase, yBase, raioA, raioB, cor); break;
+                            case 'y':
+                                Polilinha poly = new Polilinha(xBase, yBase, cor);
+                                for (int i=30; i<linha.length()/5; i+=10){
+                                    poly.setNovoPonto(Integer.parseInt(linha.substring(i, i+5).trim()), Integer.parseInt(linha.substring(i+5, i+10).trim()));
+                                }
+                                figuras[qtasFiguras++] = poly;
+
                         }
                         linha = arqFiguras.readLine();
                     }
                     arqFiguras.close();
-                    //pnlDesenho.setTitle(arquivo.getName());
-                    repaint();
+                    frame.setTitle(arquivo.getName());
+                    pnlDesenho.repaint();
                 }
                 catch (IOException ioe){
                     System.out.println("Erro de leitura no arquivo");
@@ -475,7 +556,6 @@ public class Editor extends JFrame{ // Formulário GUI
         }
     }
 
-    
 
     private class MeuJPanel extends JPanel implements MouseListener, MouseMotionListener {
 
@@ -495,13 +575,13 @@ public class Editor extends JFrame{ // Formulário GUI
         }
         public void mouseReleased (MouseEvent e) {
         }
-        //"Nenhum arquivo aberto", true, true, true, true
+
         public MeuJPanel(){
             super();
             Container frame = getContentPane();
             JPanel pnlStatus = new JPanel();
             pnlStatus.setLayout(new GridLayout(1,2));
-            statusBar1 = new JLabel("Mensagem: ");
+            statusBar1 = new JLabel("Mensagem: Nenhuma figura selecionada");
             statusBar2 = new JLabel("Coordenada: ");
             pnlStatus.add(statusBar1);
             pnlStatus.add(statusBar2);
@@ -525,17 +605,17 @@ public class Editor extends JFrame{ // Formulário GUI
             Graphics2D g2d = (Graphics2D) g.create();
             super.paintComponent(g);
             for (int qualFigura =0 ; qualFigura < qtasFiguras; qualFigura++){
-                System.out.println(figuras[qualFigura].getClass());
-                System.out.println("Tentou desenhar");
-                System.out.println(qtosIndicesSelecionados);
+//                System.out.println(figuras[qualFigura].getClass());
+//                System.out.println("Tentou desenhar");
+
 
                 if (contem(indicesSelecionados, qualFigura)) {
                     g2d.setStroke(new BasicStroke(3)); // Espessura de 3 pixels
-                } else {
+                }
+                else {
                     g2d.setStroke(new BasicStroke(1)); // Espessura padrão
                 }
                 figuras[qualFigura].desenhar(g2d);
-
             }
         }
     }

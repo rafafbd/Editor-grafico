@@ -36,10 +36,11 @@ public class Ponto {
         return cor;
     }
 
-    public String transformaString(String valor, int quantasPosicoes) {
-        String cadeia = valor;
+    public String transformaString(String valor, int quantasPosicoes)
+    {
+        String cadeia = new String(valor+"");
         while (cadeia.length() < quantasPosicoes)
-            cadeia = cadeia + " ";
+            cadeia = cadeia+" ";
         return cadeia.substring(0,quantasPosicoes);
     }
 

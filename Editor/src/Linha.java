@@ -8,15 +8,8 @@ public class Linha  extends Ponto {
         pontoFinal = new Ponto(x2,y2, cor);
     }
 
-    public String transformaString(String valor, int quantasPosicoes) {
-        String cadeia = valor;
-        while (cadeia.length() < quantasPosicoes)
-            cadeia = cadeia + " ";
-        return cadeia.substring(0,quantasPosicoes);
-    }
-
     public String toString(){
-        return transformaString("p", 5) +
+        return transformaString("l", 5) +
                 transformaString(Integer.toString(x),5)+
                 transformaString(Integer.toString(y),5)+
                 transformaString(Integer.toString(getCor().getRed()),5)+

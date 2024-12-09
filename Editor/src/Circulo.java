@@ -15,15 +15,8 @@ public class Circulo extends Ponto {
         raio = r;
     }
 
-    public String transformaString(String valor, int quantasPosicoes) {
-        String cadeia = valor;
-        while (cadeia.length() < quantasPosicoes)
-            cadeia = cadeia + " ";
-        return cadeia.substring(0,quantasPosicoes);
-    }
-
     public String toString(){
-        return transformaString("p", 5) +
+        return transformaString("c", 5) +
                 transformaString(Integer.toString(x),5)+
                 transformaString(Integer.toString(y),5)+
                 transformaString(Integer.toString(getCor().getRed()),5)+
@@ -34,6 +27,6 @@ public class Circulo extends Ponto {
 
     public void desenhar(Graphics g){
         g.setColor(cor);
-        g.drawOval(x - raio, y - raio, raio, raio);
+        g.drawOval(x-raio, y-raio, raio*2, raio*2);
     }
 }
