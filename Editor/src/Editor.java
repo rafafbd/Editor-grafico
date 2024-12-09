@@ -7,7 +7,8 @@ import javax.swing.*;
 public class Editor extends JFrame{ // Formulário GUI
 
     private JButton btnPonto, btnLinha, btnCirculo, btnElipse, btnCor, btnAbrir,
-            btnSalvar, btnApagar, btnSair, btnRetangulo, btnSelecionar, btnMudarCor, btnLimpaSelecionados;
+            btnSalvar, btnApagar, btnSair, btnRetangulo, btnSelecionar, btnMudarCor,
+            btnLimpaSelecionados, btnApagaSelecionados;
     private JPanel pnlBotoes;
 
     static private Color corAtual = Color.BLACK; //Cor inicial
@@ -42,6 +43,7 @@ public class Editor extends JFrame{ // Formulário GUI
         btnSelecionar = new JButton("Selecionar"/*, new ImageIcon("sair.bmp")*/);
         btnSair = new JButton("Sair"/*, new ImageIcon("sair.bmp")*/);
         btnLimpaSelecionados = new JButton("Limpar Selecionados");
+        btnApagaSelecionados = new JButton("Apagar Selecionados");
 
         pnlBotoes = new JPanel();
         FlowLayout flwBotoes = new FlowLayout();
@@ -57,7 +59,8 @@ public class Editor extends JFrame{ // Formulário GUI
         btnSelecionar.addActionListener(new FazSelecionar());
         btnCor.addActionListener(new EscolheCor());
         btnMudarCor.addActionListener(new FazMudarCor());
-        btnLimpaSelecionados.addActionListener(new ApagaSelecionados());
+        btnLimpaSelecionados.addActionListener(new LimpaSelecionados());
+        btnApagaSelecionados.addActionListener(new ApagaSelecionados());
         btnSair.addActionListener(new FazSair());
         pnlBotoes.add(btnAbrir);
         pnlBotoes.add(btnSalvar);
@@ -71,6 +74,7 @@ public class Editor extends JFrame{ // Formulário GUI
         pnlBotoes.add(btnSelecionar);
         pnlBotoes.add(btnMudarCor);
         pnlBotoes.add(btnLimpaSelecionados);
+        pnlBotoes.add(btnApagaSelecionados);
         pnlBotoes.add(btnSair);
 
         Container cntForm = getContentPane(); // acessa o painel de conteúdo do frame
@@ -178,6 +182,26 @@ public class Editor extends JFrame{ // Formulário GUI
     }
 
     private class ApagaSelecionados implements ActionListener{
+
+        public void actionPerformed(ActionEvent e) {
+            Ponto[] temporario = new Ponto[1000];
+            int quantosTemporarios = 0;
+            for(int i = 0; i<qtasFiguras; i++){
+                if (!pnlDesenho.contem(indicesSelecionados, i)){
+                    temporario[quantosTemporarios++] = figuras[i];
+                }
+            }
+
+            for (int ind = 0; ind < quantosTemporarios; ind++){
+                figuras[ind] = temporario[ind];
+            }
+            qtasFiguras = quantosTemporarios;
+            qtosIndicesSelecionados = 0;
+            repaint();
+        }
+    }
+
+    private class LimpaSelecionados implements ActionListener{
 
         public void actionPerformed(ActionEvent e) {
             qtosIndicesSelecionados = 0;
