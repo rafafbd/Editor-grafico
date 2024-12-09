@@ -7,7 +7,7 @@ import javax.swing.*;
 public class Editor extends JFrame{ // Formulário GUI
 
     private JButton btnPonto, btnLinha, btnCirculo, btnElipse, btnCor, btnAbrir,
-            btnSalvar, btnApagar, btnSair, btnRetangulo, btnSelecionar, btnMudarCor;
+            btnSalvar, btnApagar, btnSair, btnRetangulo, btnSelecionar, btnMudarCor, btnLimpaSelecionados;
     private JPanel pnlBotoes;
 
     static private Color corAtual = Color.BLACK; //Cor inicial
@@ -41,6 +41,7 @@ public class Editor extends JFrame{ // Formulário GUI
         btnMudarCor = new JButton("Mudar Cor"/*, new ImageIcon("apagar.bmp")*/);
         btnSelecionar = new JButton("Selecionar"/*, new ImageIcon("sair.bmp")*/);
         btnSair = new JButton("Sair"/*, new ImageIcon("sair.bmp")*/);
+        btnLimpaSelecionados = new JButton("Limpar Selecionados");
 
         pnlBotoes = new JPanel();
         FlowLayout flwBotoes = new FlowLayout();
@@ -56,6 +57,7 @@ public class Editor extends JFrame{ // Formulário GUI
         btnSelecionar.addActionListener(new FazSelecionar());
         btnCor.addActionListener(new EscolheCor());
         btnMudarCor.addActionListener(new FazMudarCor());
+        btnLimpaSelecionados.addActionListener(new ApagaSelecionados());
         btnSair.addActionListener(new FazSair());
         pnlBotoes.add(btnAbrir);
         pnlBotoes.add(btnSalvar);
@@ -66,8 +68,9 @@ public class Editor extends JFrame{ // Formulário GUI
         pnlBotoes.add(btnRetangulo);
         pnlBotoes.add(btnCor);
         pnlBotoes.add(btnApagar);
-        pnlBotoes.add(btnMudarCor);
         pnlBotoes.add(btnSelecionar);
+        pnlBotoes.add(btnMudarCor);
+        pnlBotoes.add(btnLimpaSelecionados);
         pnlBotoes.add(btnSair);
 
         Container cntForm = getContentPane(); // acessa o painel de conteúdo do frame
@@ -171,6 +174,14 @@ public class Editor extends JFrame{ // Formulário GUI
         @Override
         public void actionPerformed(ActionEvent e) {
             Salvar();
+        }
+    }
+
+    private class ApagaSelecionados implements ActionListener{
+
+        public void actionPerformed(ActionEvent e) {
+            qtosIndicesSelecionados = 0;
+            repaint();
         }
     }
 
