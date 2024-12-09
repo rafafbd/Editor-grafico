@@ -10,6 +10,7 @@ public class Editor extends JFrame{ // Formulário GUI
             btnSalvar, btnApagar, btnSair;
     private JPanel pnlBotoes;
 
+    static private Color corAtual = Color.BLACK; //Cor inicial
 
     static private MeuJPanel pnlDesenho;
     private static Ponto[] figuras = new Ponto[1000];
@@ -45,6 +46,7 @@ public class Editor extends JFrame{ // Formulário GUI
         btnCirculo.addActionListener(new FazCirculo());
         btnElipse.addActionListener(new FazOval());
         btnApagar.addActionListener(new ApagaTela());
+        btnCor.addActionListener(new EscolheCor());
         btnSair.addActionListener(new FazSair());
         pnlBotoes.add(btnAbrir);
         pnlBotoes.add(btnSalvar);
@@ -135,12 +137,28 @@ public class Editor extends JFrame{ // Formulário GUI
                 public void mousePressed(MouseEvent e){
                     int x = e.getX();
                     int y = e.getY();
-                    Ponto ponto = new Ponto(x, y, Color.BLACK);//Pode mudar a cor padrão
+                    Ponto ponto = new Ponto(x, y, corAtual);//Pode mudar a cor padrão
 
                     figuras[qtasFiguras++] = ponto;
                     pnlDesenho.repaint();
                 }
             });
+        }
+    }
+
+    private class EscolheCor implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+            Color novaCor = JColorChooser.showDialog(
+                    null,
+                    "Escolha uma cor",
+                    corAtual
+            );
+
+            if (novaCor != null){
+                corAtual = novaCor;
+                //Mudou de cor
+            }
+
         }
     }
 
@@ -179,13 +197,13 @@ public class Editor extends JFrame{ // Formulário GUI
                     int x = e.getX();
                     int y = e.getY();
                     if (pontoInicial == null){
-                        pontoInicial = new Ponto(x, y, Color.BLACK);//Pode mudar a cor padrão
+                        pontoInicial = new Ponto(x, y, corAtual);//Pode mudar a cor padrão
                     }
                     else{
                         //Ponto inicial já definido
-                        Ponto pontoFinal = new Ponto(x, y, Color.BLACK);
+                        Ponto pontoFinal = new Ponto(x, y, corAtual);
 
-                    Linha linha = new Linha(pontoInicial.getX(), pontoInicial.getY(), pontoFinal.getX(), pontoFinal.getY(), Color.BLACK);
+                    Linha linha = new Linha(pontoInicial.getX(), pontoInicial.getY(), pontoFinal.getX(), pontoFinal.getY(), corAtual);
 
                     figuras[qtasFiguras++] = linha;
                     pontoInicial = null; //Limpa o ponto inicial para permitir criar outra linha
@@ -208,7 +226,7 @@ public class Editor extends JFrame{ // Formulário GUI
                     int x = e.getX();
                     int y = e.getY();
                     if (pontoCentro == null){
-                        pontoCentro = new Ponto(x, y, Color.BLACK);//Pode mudar a cor padrão
+                        pontoCentro = new Ponto(x, y, corAtual);//Pode mudar a cor padrão
                     }
                     else{
                         //Ponto inicial já definido
@@ -218,7 +236,7 @@ public class Editor extends JFrame{ // Formulário GUI
                         raio = (int) Math.sqrt(Math.pow(x - pontoCentro.getX(), 2) + Math.pow(y - pontoCentro.getY(), 2));
 
 
-                        Circulo circulo = new Circulo(pontoCentro.getX(), pontoCentro.getY(), raio, Color.BLACK);
+                        Circulo circulo = new Circulo(pontoCentro.getX(), pontoCentro.getY(), raio, corAtual);
 
                         figuras[qtasFiguras++] = circulo;
                         pontoCentro = null; //Limpa o ponto central para permitir criar outro circulo
@@ -242,7 +260,7 @@ public class Editor extends JFrame{ // Formulário GUI
                     int x = e.getX();
                     int y = e.getY();
                     if (primeiroCentro == null){
-                        primeiroCentro = new Ponto(x, y, Color.BLACK);//Pode mudar a cor padrão
+                        primeiroCentro = new Ponto(x, y, corAtual);//Pode mudar a cor padrão
                     }
                     else{
                         //Ponto inicial já definido
@@ -250,7 +268,7 @@ public class Editor extends JFrame{ // Formulário GUI
                         raioX = Math.abs(x - primeiroCentro.getX());
                         raioY = Math.abs(y - primeiroCentro.getY());
 
-                        Oval elipse = new Oval(primeiroCentro.getX(), primeiroCentro.getY(), raioX, raioY, Color.BLACK);
+                        Oval elipse = new Oval(primeiroCentro.getX(), primeiroCentro.getY(), raioX, raioY, corAtual);
 
                         figuras[qtasFiguras++] = elipse;
                         primeiroCentro = null; //Limpa o ponto central para permitir criar outro circulo
