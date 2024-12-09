@@ -3,6 +3,7 @@ import java.awt.event.*;
 import java.io.*;
 import javax.swing.*;
 
+
 public class Editor extends JFrame{ // Formulário GUI
 
     private JButton btnPonto, btnLinha, btnCirculo, btnElipse, btnCor, btnAbrir,
@@ -44,6 +45,7 @@ public class Editor extends JFrame{ // Formulário GUI
         btnCirculo.addActionListener(new FazCirculo());
         btnElipse.addActionListener(new FazOval());
         btnApagar.addActionListener(new ApagaTela());
+        btnSair.addActionListener(new FazSair());
         pnlBotoes.add(btnAbrir);
         pnlBotoes.add(btnSalvar);
         pnlBotoes.add(btnPonto);
@@ -92,31 +94,35 @@ public class Editor extends JFrame{ // Formulário GUI
     }
 
 
+    private void Salvar(){
+        JFileChooser arq = new JFileChooser();
+        arq.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        int resultado = arq.showSaveDialog(Editor.this);
+        if (resultado == JFileChooser.APPROVE_OPTION){
+            File arquivo = arq.getSelectedFile();
+            try(BufferedWriter escritor = new BufferedWriter(new FileWriter(arquivo))){
+                for (int i = 0; i<qtasFiguras; i++){
+                    escritor.write(figuras[i].toString());
+                    escritor.newLine();
+                }
+                JOptionPane.showMessageDialog(Editor.this,
+                        "Figuras salvas com sucesso!",
+                        "Salvar",
+                        JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(Editor.this,
+                        "Erro ao salvar o arquivo!",
+                        "Erro",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
     private class FazSalvamento implements ActionListener{
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            JFileChooser arq = new JFileChooser();
-            arq.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            int resultado = arq.showSaveDialog(Editor.this);
-            if (resultado == JFileChooser.APPROVE_OPTION){
-                File arquivo = arq.getSelectedFile();
-                try(BufferedWriter escritor = new BufferedWriter(new FileWriter(arquivo))){
-                    for (int i = 0; i<qtasFiguras; i++){
-                        escritor.write(figuras[i].toString());
-                        escritor.newLine();
-                    }
-                    JOptionPane.showMessageDialog(Editor.this,
-                            "Figuras salvas com sucesso!",
-                            "Salvar",
-                            JOptionPane.INFORMATION_MESSAGE);
-                } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(Editor.this,
-                            "Erro ao salvar o arquivo!",
-                            "Erro",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            }
+            Salvar();
         }
     }
 
@@ -135,6 +141,32 @@ public class Editor extends JFrame{ // Formulário GUI
                     pnlDesenho.repaint();
                 }
             });
+        }
+    }
+
+    private class FazSair implements ActionListener{
+
+
+        public void actionPerformed(ActionEvent e) {
+            Object[] options = {"Salvar e Sair", "Sair Sem Salvar", "Cancelar"};
+            int resposta = JOptionPane.showOptionDialog(
+                    null,
+                    "Deseja salvar antes de sair?",
+                    "Sair",
+                    JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[2] //Opcao padrao
+
+            );
+
+            if (resposta == JOptionPane.YES_OPTION) {
+                Salvar();
+                System.exit(0);
+            } else if (resposta == JOptionPane.NO_OPTION) {
+                System.exit(0);
+            }
         }
     }
 
