@@ -7,7 +7,7 @@ import javax.swing.*;
 public class Editor extends JFrame{ // Formulário GUI
 
     private JButton btnPonto, btnLinha, btnCirculo, btnElipse, btnCor, btnAbrir,
-            btnSalvar, btnApagar, btnSair, btnRetangulo, btnSelecionar;
+            btnSalvar, btnApagar, btnSair, btnRetangulo, btnSelecionar, btnMudarCor;
     private JPanel pnlBotoes;
 
     static private Color corAtual = Color.BLACK; //Cor inicial
@@ -38,6 +38,7 @@ public class Editor extends JFrame{ // Formulário GUI
         btnRetangulo = new JButton("Retangulo"/*, new ImageIcon("elipse.bmp")*/);
         btnCor = new JButton("Cores"/*, new ImageIcon("cores.bmp")*/);
         btnApagar = new JButton("Apagar"/*, new ImageIcon("apagar.bmp")*/);
+        btnMudarCor = new JButton("Mudar Cor"/*, new ImageIcon("apagar.bmp")*/);
         btnSelecionar = new JButton("Selecionar"/*, new ImageIcon("sair.bmp")*/);
         btnSair = new JButton("Sair"/*, new ImageIcon("sair.bmp")*/);
 
@@ -54,6 +55,7 @@ public class Editor extends JFrame{ // Formulário GUI
         btnApagar.addActionListener(new ApagaTela());
         btnSelecionar.addActionListener(new FazSelecionar());
         btnCor.addActionListener(new EscolheCor());
+        btnMudarCor.addActionListener(new FazMudarCor());
         btnSair.addActionListener(new FazSair());
         pnlBotoes.add(btnAbrir);
         pnlBotoes.add(btnSalvar);
@@ -64,6 +66,7 @@ public class Editor extends JFrame{ // Formulário GUI
         pnlBotoes.add(btnRetangulo);
         pnlBotoes.add(btnCor);
         pnlBotoes.add(btnApagar);
+        pnlBotoes.add(btnMudarCor);
         pnlBotoes.add(btnSelecionar);
         pnlBotoes.add(btnSair);
 
@@ -79,7 +82,7 @@ public class Editor extends JFrame{ // Formulário GUI
         pnlDesenho = new MeuJPanel();
         panDesenho.add(pnlDesenho);
 
-        setSize(900,700);
+        setSize(1100,700);
         show();
 
         frame.setSize(this.getWidth() / 2,this.getHeight() / 2);
@@ -168,6 +171,27 @@ public class Editor extends JFrame{ // Formulário GUI
         @Override
         public void actionPerformed(ActionEvent e) {
             Salvar();
+        }
+    }
+
+    private class FazMudarCor implements ActionListener{
+
+        public void actionPerformed(ActionEvent e) {
+            Color novaCor = JColorChooser.showDialog(
+                    null,
+                    "Escolha uma Nova Cor",
+                    corAtual // Cor padrão inicial
+            );
+
+            if (novaCor == null){
+                return;
+            }
+
+            for (int indice = 0; indice<qtosIndicesSelecionados; indice++){
+                figuras[indicesSelecionados[indice]].setCor(novaCor);
+            }
+
+            pnlDesenho.repaint();
         }
     }
 
