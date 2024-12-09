@@ -7,14 +7,17 @@ import javax.swing.*;
 public class Editor extends JFrame{ // Formulário GUI
 
     private JButton btnPonto, btnLinha, btnCirculo, btnElipse, btnCor, btnAbrir,
-            btnSalvar, btnApagar, btnSair, btnRetangulo;
+            btnSalvar, btnApagar, btnSair, btnRetangulo, btnSelecionar;
     private JPanel pnlBotoes;
 
     static private Color corAtual = Color.BLACK; //Cor inicial
 
     static private MeuJPanel pnlDesenho;
+
     private static Ponto[] figuras = new Ponto[1000];
+    private static int[] indicesSelecionados= new int[1000];
     static int qtasFiguras;
+    static int qtosIndicesSelecionados;
 
     static private JInternalFrame frame;
 
@@ -35,6 +38,7 @@ public class Editor extends JFrame{ // Formulário GUI
         btnRetangulo = new JButton("Retangulo"/*, new ImageIcon("elipse.bmp")*/);
         btnCor = new JButton("Cores"/*, new ImageIcon("cores.bmp")*/);
         btnApagar = new JButton("Apagar"/*, new ImageIcon("apagar.bmp")*/);
+        btnSelecionar = new JButton("Selecionar"/*, new ImageIcon("sair.bmp")*/);
         btnSair = new JButton("Sair"/*, new ImageIcon("sair.bmp")*/);
 
         pnlBotoes = new JPanel();
@@ -48,6 +52,7 @@ public class Editor extends JFrame{ // Formulário GUI
         btnElipse.addActionListener(new FazOval());
         btnRetangulo.addActionListener(new FazRetangulo());
         btnApagar.addActionListener(new ApagaTela());
+        btnSelecionar.addActionListener(new FazSelecionar());
         btnCor.addActionListener(new EscolheCor());
         btnSair.addActionListener(new FazSair());
         pnlBotoes.add(btnAbrir);
@@ -59,6 +64,7 @@ public class Editor extends JFrame{ // Formulário GUI
         pnlBotoes.add(btnRetangulo);
         pnlBotoes.add(btnCor);
         pnlBotoes.add(btnApagar);
+        pnlBotoes.add(btnSelecionar);
         pnlBotoes.add(btnSair);
 
         Container cntForm = getContentPane(); // acessa o painel de conteúdo do frame
@@ -117,6 +123,40 @@ public class Editor extends JFrame{ // Formulário GUI
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(Editor.this,
                         "Erro ao salvar o arquivo!",
+                        "Erro",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private class FazSelecionar implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+            try{
+                String input = JOptionPane.showInputDialog(null,
+                        "Digite o índice da figura geométrica:",
+                        "Selecionar Figura",
+                        JOptionPane.QUESTION_MESSAGE);
+
+                if (input == null)
+                    return;
+
+                int indice = Integer.parseInt(input);
+
+                if (indice < 0 || indice >= qtasFiguras){
+                    JOptionPane.showMessageDialog(null,
+                            "Índice inválido! Insira um valor entre 0 e " + (qtasFiguras - 1),
+                            "Erro",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                indicesSelecionados[qtosIndicesSelecionados++] = indice;
+
+                repaint();
+            }
+            catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null,
+                        "Por favor, insira um número válido.",
                         "Erro",
                         JOptionPane.ERROR_MESSAGE);
             }
@@ -316,6 +356,7 @@ public class Editor extends JFrame{ // Formulário GUI
     private class ApagaTela implements ActionListener{
         public void actionPerformed(ActionEvent e){
             qtasFiguras = 0;
+            qtosIndicesSelecionados = 0;
             repaint();
         }
     }
@@ -412,12 +453,30 @@ public class Editor extends JFrame{ // Formulário GUI
             addMouseMotionListener(this);
         }
 
+        public boolean contem(int[] array, int valor) {
+            for (int i = 0; i<qtosIndicesSelecionados; i++) {
+                if (array[i] == valor) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public void paintComponent(Graphics g) {
+            Graphics2D g2d = (Graphics2D) g.create();
             super.paintComponent(g);
             for (int qualFigura =0 ; qualFigura < qtasFiguras; qualFigura++){
                 System.out.println(figuras[qualFigura].getClass());
                 System.out.println("Tentou desenhar");
-                figuras[qualFigura].desenhar(g);
+                System.out.println(qtosIndicesSelecionados);
+
+                if (contem(indicesSelecionados, qualFigura)) {
+                    g2d.setStroke(new BasicStroke(3)); // Espessura de 3 pixels
+                } else {
+                    g2d.setStroke(new BasicStroke(1)); // Espessura padrão
+                }
+                figuras[qualFigura].desenhar(g2d);
+
             }
         }
     }
