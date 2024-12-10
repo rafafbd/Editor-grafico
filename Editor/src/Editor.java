@@ -344,6 +344,7 @@ public class Editor extends JFrame{ // Formulário GUI
 
     private class FazPolilinha implements ActionListener{
         public void actionPerformed(ActionEvent e){
+            System.out.println(figuraEsperada);
             if (figuraEsperada.equals("Polilinha")) {
                 System.out.println("vai desenhar");
                 figuraEsperada = "";
@@ -501,10 +502,12 @@ public class Editor extends JFrame{ // Formulário GUI
             if (result == JFileChooser.APPROVE_OPTION) {
                 arquivo = arqEscolhido.getSelectedFile();
                 System.out.println("Processando "+arquivo.getName());
+                System.out.println(arquivo);
             }
             try {
+                assert arquivo != null;
                 BufferedReader arqFiguras = new BufferedReader(
-                        new FileReader(arquivo.getName()));
+                        new FileReader(arquivo));
                 try {
                     qtasFiguras = 0;
                     String linha = arqFiguras.readLine();
@@ -534,7 +537,7 @@ public class Editor extends JFrame{ // Formulário GUI
                                 figuras[qtasFiguras++] = new Oval(xBase, yBase, raioA, raioB, cor); break;
                             case 'y':
                                 Polilinha poly = new Polilinha(xBase, yBase, cor);
-                                for (int i=30; i<linha.length()/5; i+=10){
+                                for (int i=30; i+10<=linha.length(); i+=10){
                                     poly.setNovoPonto(Integer.parseInt(linha.substring(i, i+5).trim()), Integer.parseInt(linha.substring(i+5, i+10).trim()));
                                 }
                                 figuras[qtasFiguras++] = poly;
