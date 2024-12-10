@@ -231,6 +231,21 @@ public class Editor extends JFrame{ // Formulário GUI
                     linha.setX2(linha.getX2() + deltaX);
                     linha.setY2(linha.getY2() + deltaY);
                 }
+                else if (figura instanceof Polilinha){
+                    Polilinha poly = (Polilinha) figura;
+                    int[] posicoesX = poly.getxCods();
+                    int[] posicoesY = poly.getyCods();
+                    for (int i = 0; i<poly.getQtsPontos(); i++){
+                        int novoX = posicoesX[i] + deltaX;
+                        int novoY = posicoesY[i] + deltaY;
+                        try {
+                            poly.atualizarCoordanadas(i, novoX, novoY);
+                        } catch (Exception ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
+                }
+
             }
             pnlDesenho.repaint();
         }

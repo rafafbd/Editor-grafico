@@ -29,6 +29,14 @@ public class Polilinha  extends Ponto {
         qtsPontos++;
     }
 
+    public void atualizarCoordanadas(int posicao, int x, int y) throws Exception {
+        if (posicao < 0 || posicao > qtsPontos){
+            throw new Exception("indice fora de alcance");
+        }
+        xCods[posicao] = x;
+        yCods[posicao] = y;
+    }
+
     public String toString(){
         String saida = transformaString("y", 5) +
                 transformaString(Integer.toString(x),5)+

@@ -14,7 +14,7 @@ public class Linha  extends Ponto {
     }
 
     public void setY2(int y2) {
-        pontoFinal.setX(y2);
+        pontoFinal.setY(y2);
     }
 
     public int getY2() {
