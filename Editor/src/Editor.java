@@ -226,6 +226,11 @@ public class Editor extends JFrame{ // Formulário GUI
                 Ponto figura = figuras[indicesSelecionados[indice]];
                 figura.setX(figura.getX() + deltaX);
                 figura.setY(figura.getY() + deltaY);
+                if (figura instanceof Linha){
+                    Linha linha = (Linha) figura;
+                    linha.setX2(linha.getX2() + deltaX);
+                    linha.setY2(linha.getY2() + deltaY);
+                }
             }
             pnlDesenho.repaint();
         }

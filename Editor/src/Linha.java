@@ -8,6 +8,23 @@ public class Linha  extends Ponto {
         pontoFinal = new Ponto(x2,y2, cor);
     }
 
+
+    public void setX2(int x2) {
+        pontoFinal.setX(x2);
+    }
+
+    public void setY2(int y2) {
+        pontoFinal.setX(y2);
+    }
+
+    public int getY2() {
+        return pontoFinal.getY();
+    }
+
+    public int getX2() {
+        return pontoFinal.getX();
+    }
+
     public String toString(){
         return transformaString("l", 5) +
                 transformaString(Integer.toString(x),5)+
